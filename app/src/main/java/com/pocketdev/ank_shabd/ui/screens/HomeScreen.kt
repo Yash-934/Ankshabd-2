@@ -103,75 +103,73 @@ fun HomeScreen(
             }
         }
 
-        // 2. Hero Card: Instant Number-to-Hindi-Word Generator
+        // 2. Instant Number-to-Hindi-Word Generator (No enclosing box)
         item {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = "✨ किसी भी संख्या से सार्थक हिंदी शब्द बनाएँ (V2.3)",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.primary
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "✨ किसी भी संख्या से सार्थक हिंदी शब्द बनाएँ (V2.3)",
+                    fontSize = 16.sp,
+                    lineHeight = 24.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "कोई भी अंक दर्ज करें — Gemini AI सार्थक शब्द सुझाएगा और ऐप का V2.3 एनकोडर उसका सटीक कोड प्रमाणित करेगा",
+                    fontSize = 12.sp,
+                    lineHeight = 18.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = quickNumberInput,
+                        onValueChange = { quickNumberInput = GeminiAiProvider.sanitizeNumberInput(it) },
+                        placeholder = { Text("उदा. 11, 24, 42, 185, 1947, 1001") },
+                        modifier = Modifier
+                            .weight(1f)
+                            .testTag("home_number_input"),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true
                     )
-                    Text(
-                        text = "कोई भी अंक दर्ज करें — Gemini AI सार्थक शब्द सुझाएगा और ऐप का V2.3 एनकोडर उसका सटीक कोड प्रमाणित करेगा",
-                        fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                    Button(
+                        onClick = {
+                            onNavigateToWordLab(quickNumberInput.ifBlank { "11" })
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .height(54.dp)
+                            .testTag("home_generate_word_button")
                     ) {
-                        OutlinedTextField(
-                            value = quickNumberInput,
-                            onValueChange = { quickNumberInput = GeminiAiProvider.sanitizeNumberInput(it) },
-                            placeholder = { Text("उदा. 11, 24, 42, 185, 1947, 1001") },
-                            modifier = Modifier
-                                .weight(1f)
-                                .testTag("home_number_input"),
-                            shape = RoundedCornerShape(12.dp),
-                            singleLine = true
-                        )
-                        Button(
-                            onClick = {
-                                onNavigateToWordLab(quickNumberInput.ifBlank { "11" })
-                            },
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier
-                                .height(54.dp)
-                                .testTag("home_generate_word_button")
-                        ) {
-                            Text("शब्द बनाएँ", fontWeight = FontWeight.Bold)
-                        }
+                        Text("शब्द बनाएँ", fontWeight = FontWeight.Bold)
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        val heroPresets = listOf("11", "24", "42", "185", "111", "110", "1947", "2026", "356", "1001")
-                        items(heroPresets) { num ->
-                            Surface(
-                                shape = RoundedCornerShape(8.dp),
-                                color = MaterialTheme.colorScheme.surface,
-                                modifier = Modifier.clickable {
-                                    quickNumberInput = num
-                                    onNavigateToWordLab(num)
-                                }
-                            ) {
-                                Text(
-                                    text = num,
-                                    fontFamily = FontFamily.Monospace,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                                )
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    val heroPresets = listOf("11", "24", "42", "185", "111", "110", "1947", "2026", "356", "1001")
+                    items(heroPresets) { num ->
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+                            modifier = Modifier.clickable {
+                                quickNumberInput = num
+                                onNavigateToWordLab(num)
                             }
+                        ) {
+                            Text(
+                                text = num,
+                                fontFamily = FontFamily.Monospace,
+                                fontSize = 12.sp,
+                                lineHeight = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                            )
                         }
                     }
                 }
