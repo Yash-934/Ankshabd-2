@@ -538,20 +538,21 @@ private fun NoteCard(
             .fillMaxWidth()
             .clickable(onClick = onClick)
             .testTag("note_card_${note.id}"),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            containerColor = MaterialTheme.colorScheme.surface
         ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.15f))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.18f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(modifier = Modifier.padding(14.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
                 Row(
-                    modifier = Modifier.weight(1f).padding(end = 6.dp),
+                    modifier = Modifier.weight(1f).padding(end = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -609,9 +610,9 @@ private fun NoteCard(
             }
 
             if (!note.targetWord.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(6.dp))
                 Surface(
-                    shape = RoundedCornerShape(6.dp),
+                    shape = RoundedCornerShape(8.dp),
                     color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
                 ) {
                     Text(
@@ -620,27 +621,28 @@ private fun NoteCard(
                         lineHeight = 18.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            // Formatted Markdown Preview Box inside the Note List Card
+            // Formatted Markdown Preview Box inside Note List Card with generous breathing room
             Surface(
-                shape = RoundedCornerShape(10.dp),
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.75f),
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 MarkdownSnippetPreview(
                     markdown = note.content,
                     maxLines = 4,
-                    modifier = Modifier.padding(10.dp)
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             // Footer: Template Tag, Tags & Date
             Row(
@@ -1019,21 +1021,22 @@ private fun MarkdownDocumentContent(
     fun FlushCodeBlock(codeLines: List<String>) {
         if (codeLines.isNotEmpty()) {
             Surface(
-                shape = RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(12.dp),
                 color = MaterialTheme.colorScheme.surfaceVariant,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.15f)),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 4.dp)
+                    .padding(vertical = 6.dp)
             ) {
                 Text(
                     text = codeLines.joinToString("\n"),
                     fontFamily = FontFamily.Monospace,
                     fontSize = 13.sp,
-                    lineHeight = 20.sp,
+                    lineHeight = 22.sp,
                     color = onSurface,
                     modifier = Modifier
                         .horizontalScroll(rememberScrollState())
-                        .padding(12.dp)
+                        .padding(16.dp)
                 )
             }
         }
@@ -1064,14 +1067,14 @@ private fun MarkdownDocumentContent(
             }
 
             trimmed == "---" || trimmed == "***" || trimmed == "___" -> {
-                Divider(
-                    modifier = Modifier.padding(vertical = 8.dp),
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 10.dp),
                     color = MaterialTheme.colorScheme.outline.copy(alpha = 0.25f)
                 )
             }
 
             trimmed.startsWith("# ") -> {
-                Column(modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)) {
+                Column(modifier = Modifier.padding(top = 10.dp, bottom = 6.dp)) {
                     Text(
                         text = formatInlineMarkdownAnnotated(trimmed.removePrefix("# ").trim(), primaryColor),
                         fontSize = 22.sp,
@@ -1079,15 +1082,15 @@ private fun MarkdownDocumentContent(
                         fontWeight = FontWeight.ExtraBold,
                         color = primaryColor
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Divider(color = primaryColor.copy(alpha = 0.25f), thickness = 1.5.dp)
+                    Spacer(modifier = Modifier.height(6.dp))
+                    HorizontalDivider(color = primaryColor.copy(alpha = 0.25f), thickness = 1.5.dp)
                 }
             }
 
             trimmed.startsWith("## ") -> {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(top = 10.dp, bottom = 2.dp)
+                    modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
                 ) {
                     Box(
                         modifier = Modifier
@@ -1096,7 +1099,7 @@ private fun MarkdownDocumentContent(
                             .clip(RoundedCornerShape(2.dp))
                             .background(primaryColor)
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
                     Text(
                         text = formatInlineMarkdownAnnotated(trimmed.removePrefix("## ").trim(), primaryColor),
                         fontSize = 19.sp,
@@ -1114,23 +1117,28 @@ private fun MarkdownDocumentContent(
                     lineHeight = 26.sp,
                     fontWeight = FontWeight.Bold,
                     color = AmberCode,
-                    modifier = Modifier.padding(top = 8.dp, bottom = 2.dp)
+                    modifier = Modifier.padding(top = 10.dp, bottom = 4.dp)
                 )
             }
 
             trimmed.startsWith("> ") -> {
                 Surface(
-                    shape = RoundedCornerShape(topEnd = 10.dp, bottomEnd = 10.dp),
+                    shape = RoundedCornerShape(12.dp),
                     color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f),
+                    border = BorderStroke(1.dp, primaryColor.copy(alpha = 0.2f)),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 2.dp)
+                        .padding(vertical = 4.dp)
                 ) {
-                    Row(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Box(
                             modifier = Modifier
-                                .width(4.dp)
-                                .heightIn(min = 36.dp)
+                                .width(5.dp)
+                                .heightIn(min = 40.dp)
+                                .clip(RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp))
                                 .background(primaryColor)
                         )
                         Text(
@@ -1139,7 +1147,7 @@ private fun MarkdownDocumentContent(
                             lineHeight = 24.sp,
                             fontStyle = FontStyle.Italic,
                             color = onSurface,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
                         )
                     }
                 }

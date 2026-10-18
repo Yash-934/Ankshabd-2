@@ -3,6 +3,7 @@ package com.pocketdev.ank_shabd.ui.screens
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -288,17 +289,19 @@ fun TranslationScreen(
                                 // Progressive 1-word -> 2-word -> 3-word attempt log
                                 if (currentTranslation.exampleSentences.isNotEmpty()) {
                                     Surface(
-                                        shape = RoundedCornerShape(10.dp),
+                                        shape = RoundedCornerShape(12.dp),
                                         color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.45f),
+                                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.15f)),
                                         modifier = Modifier.fillMaxWidth()
                                     ) {
                                         Column(
-                                            modifier = Modifier.padding(10.dp),
-                                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                                            modifier = Modifier.padding(14.dp),
+                                            verticalArrangement = Arrangement.spacedBy(6.dp)
                                         ) {
                                             Text(
                                                 text = "🔄 चरणबद्ध शब्द निर्माण (पहले 1 शब्द ➔ न मिलने पर 2 शब्द ➔ 3 शब्द...):",
-                                                fontSize = 11.sp,
+                                                fontSize = 12.sp,
+                                                lineHeight = 18.sp,
                                                 fontWeight = FontWeight.Bold,
                                                 color = MaterialTheme.colorScheme.primary
                                             )
@@ -307,6 +310,7 @@ fun TranslationScreen(
                                                 Text(
                                                     text = stepLog,
                                                     fontSize = 12.sp,
+                                                    lineHeight = 18.sp,
                                                     fontWeight = if (isSuccess) FontWeight.Bold else FontWeight.Normal,
                                                     color = if (isSuccess) GreenApproved else OrangeWarning
                                                 )
@@ -319,7 +323,8 @@ fun TranslationScreen(
                                 if (currentTranslation.synonyms.isNotEmpty()) {
                                     Text(
                                         text = "प्रयुक्त अक्षर और मात्रा की V2.3 जाँच:",
-                                        fontSize = 12.sp,
+                                        fontSize = 13.sp,
+                                        lineHeight = 19.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -327,13 +332,14 @@ fun TranslationScreen(
                                         val enc = PhoneticMatraEncoder.encode(validWord)
                                         val seedMatch = allSeedPegs.find { it.normalizedWord == enc.normalizedWord }
                                         Surface(
-                                            shape = RoundedCornerShape(10.dp),
-                                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
+                                            shape = RoundedCornerShape(12.dp),
+                                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+                                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.15f)),
                                             modifier = Modifier.fillMaxWidth()
                                         ) {
                                             Column(
-                                                modifier = Modifier.padding(10.dp),
-                                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                                                modifier = Modifier.padding(14.dp),
+                                                verticalArrangement = Arrangement.spacedBy(8.dp)
                                             ) {
                                                 Row(
                                                     modifier = Modifier.fillMaxWidth(),

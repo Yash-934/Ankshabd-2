@@ -1,5 +1,6 @@
 package com.pocketdev.ank_shabd.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -634,29 +635,30 @@ fun GeneratedPegResultCard(
             .fillMaxWidth()
             .testTag(if (isBestMatchHero) "best_matching_word_card" else "candidate_word_card_${peg.word}")
             .clickable { onWordClick() },
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isBestMatchHero) {
-                MaterialTheme.colorScheme.surface
-            } else {
-                MaterialTheme.colorScheme.surface
-            }
+            containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (isBestMatchHero) 4.dp else 2.dp)
+        border = BorderStroke(
+            width = if (isBestMatchHero) 1.5.dp else 1.dp,
+            color = if (isBestMatchHero) AmberCode.copy(alpha = 0.6f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (isBestMatchHero) 3.dp else 1.dp)
     ) {
-        Column(modifier = Modifier.padding(14.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
             if (isBestMatchHero) {
                 Surface(
-                    shape = RoundedCornerShape(6.dp),
+                    shape = RoundedCornerShape(8.dp),
                     color = AmberCodeContainer,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    modifier = Modifier.padding(bottom = 10.dp)
                 ) {
                     Text(
                         text = "🏆 सर्वश्रेष्ठ सार्थक हिंदी शब्द",
                         color = AmberCode,
                         fontSize = 11.sp,
+                        lineHeight = 16.sp,
                         fontWeight = FontWeight.ExtraBold,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                     )
                 }
             }
@@ -669,11 +671,12 @@ fun GeneratedPegResultCard(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Text(
                         text = peg.word,
-                        fontSize = if (isBestMatchHero) 26.sp else 21.sp,
+                        fontSize = if (isBestMatchHero) 26.sp else 22.sp,
+                        lineHeight = if (isBestMatchHero) 36.sp else 30.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -681,20 +684,20 @@ fun GeneratedPegResultCard(
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = onSpeakWord, modifier = Modifier.size(32.dp)) {
-                        Text("🔊", fontSize = 16.sp)
+                    IconButton(onClick = onSpeakWord, modifier = Modifier.size(36.dp)) {
+                        Text("🔊", fontSize = 18.sp)
                     }
-                    IconButton(onClick = onFavoriteToggle, modifier = Modifier.size(32.dp)) {
-                        Text(if (peg.isFavorite) "★" else "☆", fontSize = 18.sp, color = AmberCode)
+                    IconButton(onClick = onFavoriteToggle, modifier = Modifier.size(36.dp)) {
+                        Text(if (peg.isFavorite) "★" else "☆", fontSize = 20.sp, color = AmberCode)
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // 8. Word Quality & 9. Verification Status + Folder
             Row(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 GradeBadge(grade = peg.qualityGrade)
@@ -704,30 +707,33 @@ fun GeneratedPegResultCard(
                 )
                 Text(
                     text = "📁 ${peg.category}",
-                    fontSize = 11.sp,
+                    fontSize = 12.sp,
+                    lineHeight = 18.sp,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.clickable { onFolderEdit() }
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             // 1. Entered Number & 5. Final Encoded Number verification strip
             Surface(
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(10.dp),
                 color = GreenApprovedContainer.copy(alpha = 0.7f),
+                border = BorderStroke(1.dp, GreenApproved.copy(alpha = 0.35f)),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = "दर्ज संख्या: $enteredNumber",
                         fontSize = 12.sp,
+                        lineHeight = 18.sp,
                         fontFamily = FontFamily.Monospace,
                         fontWeight = FontWeight.Bold,
                         color = GreenApproved
@@ -735,6 +741,7 @@ fun GeneratedPegResultCard(
                     Text(
                         text = "अंतिम निकला कोड: ${encResult.code} ✓",
                         fontSize = 12.sp,
+                        lineHeight = 18.sp,
                         fontFamily = FontFamily.Monospace,
                         fontWeight = FontWeight.Bold,
                         color = GreenApproved
@@ -742,12 +749,13 @@ fun GeneratedPegResultCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             // 3. Meaning in simple Hindi
             Text(
                 text = "हिंदी अर्थ: ${peg.meaningHi.ifBlank { "सार्थक हिंदी शब्द" }}",
                 fontSize = 14.sp,
+                lineHeight = 22.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -757,14 +765,18 @@ fun GeneratedPegResultCard(
             // 4. Exact character-by-character encoding
             Text(
                 text = "अक्षर-दर-अक्षर कोडिंग (V2.3):",
-                fontSize = 11.sp,
+                fontSize = 12.sp,
+                lineHeight = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            Spacer(modifier = Modifier.height(4.dp))
             ComponentTraceVisual(traces = encResult.traces)
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = encResult.formattedTraceSummary(),
                 fontSize = 12.sp,
+                lineHeight = 18.sp,
                 fontFamily = FontFamily.Monospace,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
@@ -775,30 +787,33 @@ fun GeneratedPegResultCard(
             // 6. Why the word is a good mnemonic peg
             Text(
                 text = "🎯 पेग उपयुक्तता: $whyGoodPeg",
-                fontSize = 12.sp,
+                fontSize = 13.sp,
+                lineHeight = 20.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // 7. Vivid mental image or short Hindi story
             Surface(
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(10.dp),
                 color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
                     text = "🎬 मानसिक चित्र / कहानी: $vividStory",
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
+                    lineHeight = 20.sp,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(8.dp)
+                    modifier = Modifier.padding(12.dp)
                 )
             }
 
             // Candidate Verification Actions if in Mode B or Unverified
             if (showVerificationActions) {
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(12.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -839,12 +854,13 @@ fun SegmentedBreakdownCard(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("segmented_breakdown_card"),
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
-        )
+            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.45f)
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.35f))
     ) {
-        Column(modifier = Modifier.padding(14.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -853,62 +869,68 @@ fun SegmentedBreakdownCard(
                 Text(
                     text = "✨ ${breakdown.wordCountUsed} सार्थक शब्दों में समाधान (${breakdown.enteredNumber})",
                     fontSize = 15.sp,
+                    lineHeight = 22.sp,
                     fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.primary
                 )
                 CodeBadge(code = breakdown.enteredNumber)
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Progressive 1 -> 2 -> 3 ... attempt log
             if (breakdown.attemptSteps.isNotEmpty()) {
                 Surface(
-                    shape = RoundedCornerShape(8.dp),
+                    shape = RoundedCornerShape(10.dp),
                     color = MaterialTheme.colorScheme.surface,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(
-                        modifier = Modifier.padding(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(3.dp)
+                        modifier = Modifier.padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Text(
                             text = "🔄 चरणबद्ध प्रयास (पहले 1 शब्द ➔ फिर 2 शब्द ➔ ...):",
-                            fontSize = 11.sp,
+                            fontSize = 12.sp,
+                            lineHeight = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         breakdown.attemptSteps.forEach { step ->
                             Text(
                                 text = step.summaryHi,
-                                fontSize = 11.sp,
+                                fontSize = 12.sp,
+                                lineHeight = 18.sp,
                                 fontWeight = if (step.succeeded) FontWeight.Bold else FontWeight.Normal,
                                 color = if (step.succeeded) GreenApproved else OrangeWarning
                             )
                         }
                     }
                 }
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(8.dp))
             }
 
             Text(
                 text = breakdown.whySegmentedExplanationHi,
-                fontSize = 11.sp,
+                fontSize = 12.sp,
+                lineHeight = 18.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             // Segment chips
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 items(breakdown.segments) { seg ->
                     Surface(
-                        shape = RoundedCornerShape(10.dp),
+                        shape = RoundedCornerShape(12.dp),
                         color = MaterialTheme.colorScheme.surface,
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
                         modifier = Modifier.clickable { onSpeakWord(seg.word) }
                     ) {
                         Column(
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Row(
@@ -918,19 +940,24 @@ fun SegmentedBreakdownCard(
                                 Text(
                                     text = seg.word,
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp,
+                                    fontSize = 17.sp,
+                                    lineHeight = 24.sp,
                                     color = MaterialTheme.colorScheme.primary
                                 )
                                 CodeBadge(code = seg.segmentCode)
                             }
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = seg.meaningHi,
-                                fontSize = 11.sp,
+                                fontSize = 12.sp,
+                                lineHeight = 16.sp,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = seg.traceSummary,
                                 fontSize = 10.sp,
+                                lineHeight = 14.sp,
                                 fontFamily = FontFamily.Monospace,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -939,36 +966,39 @@ fun SegmentedBreakdownCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             Surface(
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(10.dp),
                 color = MaterialTheme.colorScheme.surface,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column(modifier = Modifier.padding(10.dp)) {
+                Column(modifier = Modifier.padding(12.dp)) {
                     Text(
                         text = "पेग श्रृंखला: ${breakdown.combinedWordChain}",
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
+                        lineHeight = 19.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
                     Text(
                         text = "🎬 संयुक्त स्मृति कहानी: ${breakdown.combinedVividStoryHi}",
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
+                        lineHeight = 20.sp,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             OutlinedButton(
                 onClick = onNavigateToStory,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("🎬 स्मृति सिनेमा में पूर्ण दृश्य कथा देखें", fontSize = 12.sp)
+                Text("🎬 स्मृति सिनेमा में पूर्ण दृश्य कथा देखें", fontSize = 12.sp, lineHeight = 18.sp)
             }
         }
     }

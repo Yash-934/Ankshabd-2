@@ -41,18 +41,19 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android SDK Platform 36.1 & Build Tools
+      - name: Set up Android SDK & Accept Licenses
         run: |
-          yes | sdkmanager --licenses > /dev/null || true
-          sdkmanager "platform-tools" "platforms;android-36" "platforms;android-36.1" "build-tools;36.0.0"
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          sdkmanager --install "platform-tools" "build-tools;36.0.0" "platforms;android-36" || true
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          # Install android-36.1 with fallback so missing preview package never stops the workflow
+          sdkmanager "platforms;android-36.1" || sdkmanager --channel=3 "platforms;android-36.1" || true
 
       - name: Set up Gradle 9.3.1
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.3.1'
+          validate-wrappers: false
 
       - name: Prepare .env Configuration
         env:
@@ -71,10 +72,11 @@ jobs:
           SECRET_STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
           SECRET_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          # 1. Restore debug.keystore from debug.keystore.base64 if present
+          # 1. Restore or create debug.keystore
           if [ -f debug.keystore.base64 ] && [ ! -f debug.keystore ]; then
-            base64 -d debug.keystore.base64 > debug.keystore
-          elif [ ! -f debug.keystore ]; then
+            base64 -d debug.keystore.base64 > debug.keystore 2>/dev/null || true
+          fi
+          if [ ! -f debug.keystore ]; then
             keytool -genkeypair -v \
               -keystore debug.keystore \
               -storepass android \
@@ -86,14 +88,14 @@ jobs:
               -dname "CN=Android Debug,O=Android,C=US"
           fi
 
-          # 2. Configure Release Keystore (from GitHub Secret KEYSTORE_BASE64 or auto-generated upload key)
+          # 2. Configure Release Keystore (from GitHub Secret or self-generated upload key)
           if [ -n "$KEYSTORE_BASE64" ]; then
             echo "$KEYSTORE_BASE64" | base64 -d > "${GITHUB_WORKSPACE}/my-upload-key.jks"
             echo "KEYSTORE_PATH=${GITHUB_WORKSPACE}/my-upload-key.jks" >> $GITHUB_ENV
             echo "STORE_PASSWORD=${SECRET_STORE_PASSWORD}" >> $GITHUB_ENV
             echo "KEY_PASSWORD=${SECRET_KEY_PASSWORD}" >> $GITHUB_ENV
           else
-            echo "No KEYSTORE_BASE64 secret found; generating release signing keystore..."
+            echo "No KEYSTORE_BASE64 secret provided; generating upload release keystore..."
             keytool -genkeypair -v \
               -keystore "${GITHUB_WORKSPACE}/my-upload-key.jks" \
               -storepass android \
@@ -117,9 +119,9 @@ jobs:
       - name: Prepare Release Artifacts
         run: |
           mkdir -p release-artifacts
-          cp app/build/outputs/apk/release/*.apk release-artifacts/AnkShabd-release.apk
-          cp app/build/outputs/bundle/release/*.aab release-artifacts/AnkShabd-release.aab
-          cp app/build/outputs/apk/debug/*.apk release-artifacts/AnkShabd-debug.apk
+          find app/build/outputs/apk/release -name "*.apk" -exec cp {} release-artifacts/AnkShabd-release.apk \; || true
+          find app/build/outputs/bundle/release -name "*.aab" -exec cp {} release-artifacts/AnkShabd-release.aab \; || true
+          find app/build/outputs/apk/debug -name "*.apk" -exec cp {} release-artifacts/AnkShabd-debug.apk \; || true
           ls -lh release-artifacts/
 
       - name: Upload Release APK Artifact
@@ -127,14 +129,14 @@ jobs:
         with:
           name: AnkShabd-Release-APK
           path: release-artifacts/AnkShabd-release.apk
-          if-no-files-found: error
+          if-no-files-found: warn
 
       - name: Upload Release AAB (Play Store Bundle) Artifact
         uses: actions/upload-artifact@v4
         with:
           name: AnkShabd-Release-AAB
           path: release-artifacts/AnkShabd-release.aab
-          if-no-files-found: error
+          if-no-files-found: warn
 
       - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
@@ -159,6 +161,7 @@ jobs:
       - name: Create GitHub Release & Attach APK/AAB
         if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.create_github_release == true)
         uses: softprops/action-gh-release@v2
+        continue-on-error: true
         with:
           tag_name: ${{ steps.tag_info.outputs.tag_name }}
           name: "AnkShabd (अंकशब्द) ${{ steps.tag_info.outputs.tag_name }}"

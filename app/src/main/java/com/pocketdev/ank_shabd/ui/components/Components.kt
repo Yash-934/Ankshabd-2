@@ -1,5 +1,6 @@
 package com.pocketdev.ank_shabd.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -272,74 +273,76 @@ fun NumberAvailableBlocksCard(
         modifier = modifier
             .fillMaxWidth()
             .testTag("available_blocks_card"),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.35f)
+            containerColor = MaterialTheme.colorScheme.surface
         ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.18f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
-                Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+                Column(modifier = Modifier.weight(1f).padding(end = 10.dp)) {
                     Text(
-                        text = "🧩 संख्या '$cleanCode' के लिए उपलब्ध अक्षर, मात्राएँ एवं शब्द",
-                        fontSize = 15.sp,
-                        lineHeight = 22.sp,
+                        text = "🧩 संख्या '$cleanCode' के उपलब्ध अक्षर, मात्राएँ एवं शब्द",
+                        fontSize = 16.sp,
+                        lineHeight = 24.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = MaterialTheme.colorScheme.primary
                     )
-                    Spacer(modifier = Modifier.height(2.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "V2.3 नियम के अनुसार प्रत्येक अंक के उपलब्ध व्यंजन और मात्राएँ (AI इन्हीं का उपयोग करके सार्थक शब्द बनाता है)",
-                        fontSize = 11.sp,
-                        lineHeight = 17.sp,
+                        text = "V2.3 मानक: प्रत्येक अंक के नियत व्यंजन और मात्राएँ (AI इन्हीं का उपयोग करके सार्थक शब्द बनाता है)",
+                        fontSize = 12.sp,
+                        lineHeight = 18.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                CodeBadge(code = cleanCode)
+                CodeBadge(code = cleanCode, large = true)
             }
 
             // 1. Digit-by-digit Available Consonants & Matras
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 palette.digitBlocks.forEach { block ->
                     Surface(
-                        shape = RoundedCornerShape(10.dp),
-                        color = MaterialTheme.colorScheme.surface,
+                        shape = RoundedCornerShape(14.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(
-                            modifier = Modifier.padding(10.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                            modifier = Modifier.padding(14.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
                                 Surface(
-                                    shape = RoundedCornerShape(6.dp),
+                                    shape = RoundedCornerShape(8.dp),
                                     color = AmberCode
                                 ) {
                                     Text(
                                         text = "अंक #${block.position} : ${block.digit}",
                                         fontFamily = FontFamily.Monospace,
                                         fontWeight = FontWeight.ExtraBold,
-                                        fontSize = 12.sp,
-                                        lineHeight = 18.sp,
+                                        fontSize = 13.sp,
+                                        lineHeight = 19.sp,
                                         color = Color.White,
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                                     )
                                 }
                                 Text(
                                     text = block.usageHintHi,
-                                    fontSize = 11.sp,
-                                    lineHeight = 16.sp,
+                                    fontSize = 12.sp,
+                                    lineHeight = 18.sp,
                                     modifier = Modifier.weight(1f),
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -347,20 +350,22 @@ fun NumberAvailableBlocksCard(
 
                             // Available Consonants
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 2.dp),
                                 verticalAlignment = Alignment.Top
                             ) {
                                 Text(
-                                    text = "उपलब्ध व्यंजन (अक्षर): ",
-                                    fontSize = 12.sp,
-                                    lineHeight = 20.sp,
+                                    text = "उपलब्ध व्यंजन: ",
+                                    fontSize = 13.sp,
+                                    lineHeight = 22.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.primary
                                 )
                                 Text(
-                                    text = block.availableConsonants.joinToString(" , "),
-                                    fontSize = 14.sp,
-                                    lineHeight = 22.sp,
+                                    text = block.availableConsonants.joinToString("  •  "),
+                                    fontSize = 15.sp,
+                                    lineHeight = 23.sp,
                                     fontWeight = FontWeight.ExtraBold,
                                     modifier = Modifier.weight(1f),
                                     color = MaterialTheme.colorScheme.onSurface
@@ -369,30 +374,32 @@ fun NumberAvailableBlocksCard(
 
                             // Available Matras & Independent Vowels
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 2.dp),
                                 verticalAlignment = Alignment.Top
                             ) {
                                 Text(
-                                    text = "उपलब्ध मात्रा / स्वर: ",
-                                    fontSize = 12.sp,
-                                    lineHeight = 20.sp,
+                                    text = "उपलब्ध मात्रा/स्वर: ",
+                                    fontSize = 13.sp,
+                                    lineHeight = 22.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = GreenApproved
                                 )
                                 val matraAndVowelText = buildString {
                                     if (block.availableMatras.isNotEmpty()) {
-                                        append(block.availableMatras.joinToString(" , "))
+                                        append(block.availableMatras.joinToString("  •  "))
                                     } else {
                                         append("कोई मात्रा नहीं (केवल व्यंजन)")
                                     }
                                     if (block.availableIndependentVowels.isNotEmpty()) {
-                                        append("  |  स्वर: ${block.availableIndependentVowels.joinToString(", ")}")
+                                        append("   |   स्वर: ${block.availableIndependentVowels.joinToString(", ")}")
                                     }
                                 }
                                 Text(
                                     text = matraAndVowelText,
-                                    fontSize = 13.sp,
-                                    lineHeight = 20.sp,
+                                    fontSize = 14.sp,
+                                    lineHeight = 22.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     modifier = Modifier.weight(1f),
                                     color = if (block.availableMatras.isNotEmpty()) GreenApproved else MaterialTheme.colorScheme.onSurfaceVariant
@@ -401,10 +408,11 @@ fun NumberAvailableBlocksCard(
 
                             if (block.carrierMatraExamples.isNotEmpty()) {
                                 Text(
-                                    text = "वाहक (य/व/ह/ल) + मात्रा विकल्प: ${block.carrierMatraExamples.joinToString(", ")}",
+                                    text = "वाहक (य/व/ह/ल) + मात्रा: ${block.carrierMatraExamples.joinToString(", ")}",
                                     fontSize = 11.sp,
                                     lineHeight = 17.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(top = 2.dp)
                                 )
                             }
                         }
@@ -415,23 +423,24 @@ fun NumberAvailableBlocksCard(
             // 2. Combined Syllable Hints
             if (palette.readySyllableHints.isNotEmpty()) {
                 Surface(
-                    shape = RoundedCornerShape(10.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f),
+                    shape = RoundedCornerShape(14.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Column(modifier = Modifier.padding(10.dp)) {
+                    Column(modifier = Modifier.padding(14.dp)) {
                         Text(
                             text = "⚡ अक्षर + मात्रा जोड़कर तैयार शब्दांश (2–3 अंक एक साथ):",
-                            fontSize = 12.sp,
-                            lineHeight = 18.sp,
+                            fontSize = 13.sp,
+                            lineHeight = 19.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
                         )
-                        Spacer(modifier = Modifier.height(2.dp))
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = palette.readySyllableHints.joinToString("   •   "),
-                            fontSize = 13.sp,
-                            lineHeight = 20.sp,
+                            fontSize = 14.sp,
+                            lineHeight = 22.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -441,23 +450,24 @@ fun NumberAvailableBlocksCard(
 
             // 3. Free Carrier Consonants & Helpers
             Surface(
-                shape = RoundedCornerShape(10.dp),
-                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(14.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column(modifier = Modifier.padding(10.dp)) {
+                Column(modifier = Modifier.padding(14.dp)) {
                     Text(
                         text = "🆓 सहायक वाहक अक्षर (इनका कोई व्यंजन-अंक नहीं जुड़ता — शब्द पूरा करने के लिए उपयोगी):",
-                        fontSize = 11.sp,
-                        lineHeight = 17.sp,
+                        fontSize = 12.sp,
+                        lineHeight = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Spacer(modifier = Modifier.height(2.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "वाहक व्यंजन: य , व , ह , ल   |   बिना अंक के स्वर/चिह्न: अ , ँ (चंद्रबिंदु) , ् (हलंत)",
-                        fontSize = 12.sp,
-                        lineHeight = 19.sp,
+                        fontSize = 13.sp,
+                        lineHeight = 20.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -466,18 +476,19 @@ fun NumberAvailableBlocksCard(
 
             // 4. Available Dictionary Words for this Number / Segments
             Surface(
-                shape = RoundedCornerShape(10.dp),
-                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(14.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
-                    modifier = Modifier.padding(10.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                    modifier = Modifier.padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = "📚 इस संख्या ($cleanCode) के लिए उपलब्ध सार्थक शब्द (${exactWords.size}):",
-                        fontSize = 12.sp,
-                        lineHeight = 18.sp,
+                        text = "📚 इस संख्या ($cleanCode) के उपलब्ध सार्थक शब्द (${exactWords.size}):",
+                        fontSize = 13.sp,
+                        lineHeight = 19.sp,
                         fontWeight = FontWeight.Bold,
                         color = GreenApproved
                     )
@@ -486,15 +497,16 @@ fun NumberAvailableBlocksCard(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .horizontalScroll(rememberScrollState()),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             exactWords.forEach { peg ->
                                 Surface(
-                                    shape = RoundedCornerShape(8.dp),
-                                    color = GreenApprovedContainer.copy(alpha = 0.7f),
+                                    shape = RoundedCornerShape(10.dp),
+                                    color = GreenApprovedContainer.copy(alpha = 0.85f),
+                                    border = BorderStroke(1.dp, GreenApproved.copy(alpha = 0.25f)),
                                     modifier = Modifier.clickable { onWordClick(peg) }
                                 ) {
-                                    Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
+                                    Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically,
                                             horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -502,8 +514,8 @@ fun NumberAvailableBlocksCard(
                                             Text(
                                                 text = peg.word,
                                                 fontWeight = FontWeight.ExtraBold,
-                                                fontSize = 15.sp,
-                                                lineHeight = 22.sp,
+                                                fontSize = 16.sp,
+                                                lineHeight = 24.sp,
                                                 color = GreenApproved
                                             )
                                             Text(
@@ -516,8 +528,8 @@ fun NumberAvailableBlocksCard(
                                         }
                                         Text(
                                             text = peg.meaningHi,
-                                            fontSize = 11.sp,
-                                            lineHeight = 16.sp,
+                                            fontSize = 12.sp,
+                                            lineHeight = 17.sp,
                                             color = Color(0xFF064E3B)
                                         )
                                     }
@@ -527,8 +539,8 @@ fun NumberAvailableBlocksCard(
                     } else {
                         Text(
                             text = "पूर्ण संख्या '$cleanCode' के लिए शब्दकोश में अभी कोई पूर्व-सहेजा एकल शब्द नहीं है — नीचे बटन दबाकर इन उपलब्ध अक्षरों और मात्राओं से AI द्वारा नया सार्थक शब्द बनाएँ!",
-                            fontSize = 11.sp,
-                            lineHeight = 17.sp,
+                            fontSize = 12.sp,
+                            lineHeight = 18.sp,
                             color = OrangeWarning
                         )
                     }
@@ -537,8 +549,8 @@ fun NumberAvailableBlocksCard(
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
                             text = "🔗 खंडों (Segments) में उपलब्ध सार्थक शब्द:",
-                            fontSize = 11.sp,
-                            lineHeight = 17.sp,
+                            fontSize = 12.sp,
+                            lineHeight = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -558,14 +570,15 @@ fun NumberAvailableBlocksCard(
             Button(
                 onClick = onGenerateWithAi,
                 enabled = !isGenerating,
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(14.dp),
                 modifier = Modifier
                     .fillMaxWidth()
+                    .height(50.dp)
                     .testTag("ai_build_from_blocks_button")
             ) {
                 Text(
                     text = if (isGenerating) {
-                        "⏳ उपलब्ध अक्षर और मात्राओं से सार्थक शब्द बनाए जा रहे हैं..."
+                        "⏳ उपलब्ध अक्षरों और मात्राओं से शब्द बनाए जा रहे हैं..."
                     } else {
                         "✨ इन उपलब्ध अक्षरों और मात्राओं से AI द्वारा सार्थक शब्द बनाएँ"
                     },
@@ -775,7 +788,7 @@ fun MarkdownSnippetPreview(
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(3.dp)
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         previewLines.forEach { line ->
             when {
@@ -784,7 +797,7 @@ fun MarkdownSnippetPreview(
                     Text(
                         text = formatInlineMarkdownAnnotated(cleanHeading, primaryColor),
                         fontSize = 13.sp,
-                        lineHeight = 19.sp,
+                        lineHeight = 21.sp,
                         fontWeight = FontWeight.Bold,
                         color = primaryColor,
                         maxLines = 1,
@@ -795,20 +808,20 @@ fun MarkdownSnippetPreview(
                     val itemText = line.substring(2).trim()
                     Row(
                         verticalAlignment = Alignment.Top,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
                             text = "•",
                             fontSize = 13.sp,
-                            lineHeight = 19.sp,
+                            lineHeight = 21.sp,
                             fontWeight = FontWeight.Bold,
                             color = primaryColor
                         )
                         Text(
                             text = formatInlineMarkdownAnnotated(itemText, primaryColor),
                             fontSize = 13.sp,
-                            lineHeight = 19.sp,
-                            color = onSurface.copy(alpha = 0.9f),
+                            lineHeight = 21.sp,
+                            color = onSurface.copy(alpha = 0.95f),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -819,13 +832,13 @@ fun MarkdownSnippetPreview(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(primaryColor.copy(alpha = 0.08f), RoundedCornerShape(4.dp))
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                            .background(primaryColor.copy(alpha = 0.08f), RoundedCornerShape(6.dp))
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
                         Text(
                             text = formatInlineMarkdownAnnotated(line.removePrefix("> ").trim(), primaryColor),
                             fontSize = 12.sp,
-                            lineHeight = 18.sp,
+                            lineHeight = 20.sp,
                             fontStyle = FontStyle.Italic,
                             color = onSurfaceVariant,
                             maxLines = 1,
@@ -837,7 +850,7 @@ fun MarkdownSnippetPreview(
                     Text(
                         text = formatInlineMarkdownAnnotated(line, primaryColor),
                         fontSize = 13.sp,
-                        lineHeight = 19.sp,
+                        lineHeight = 21.sp,
                         color = onSurfaceVariant,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis

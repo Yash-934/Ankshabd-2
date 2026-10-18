@@ -1,5 +1,6 @@
 package com.pocketdev.ank_shabd.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -173,18 +174,19 @@ fun HomeScreen(
                             }
                         }
                     }
-
-                    if (quickNumberInput.isNotBlank()) {
-                        Spacer(modifier = Modifier.height(10.dp))
-                        com.pocketdev.ank_shabd.ui.components.NumberAvailableBlocksCard(
-                            targetCode = quickNumberInput,
-                            availableMatchingWords = recentPegs.filter { it.code == quickNumberInput },
-                            isGenerating = false,
-                            onGenerateWithAi = { onNavigateToWordLab(quickNumberInput) },
-                            onWordClick = { peg -> onNavigateToWordDetails(peg) }
-                        )
-                    }
                 }
+            }
+        }
+
+        if (quickNumberInput.isNotBlank()) {
+            item {
+                com.pocketdev.ank_shabd.ui.components.NumberAvailableBlocksCard(
+                    targetCode = quickNumberInput,
+                    availableMatchingWords = recentPegs.filter { it.code == quickNumberInput },
+                    isGenerating = false,
+                    onGenerateWithAi = { onNavigateToWordLab(quickNumberInput) },
+                    onWordClick = { peg -> onNavigateToWordDetails(peg) }
+                )
             }
         }
 
@@ -421,9 +423,12 @@ fun HomeScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { onNavigateToNoteEditor(note) },
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                     ) {
-                        Column(modifier = Modifier.padding(14.dp)) {
+                        Column(modifier = Modifier.padding(16.dp)) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -440,7 +445,7 @@ fun HomeScreen(
                                     CodeBadge(code = note.targetNumber)
                                 }
                             }
-                            Spacer(modifier = Modifier.height(6.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
                             MarkdownSnippetPreview(markdown = note.content, maxLines = 3)
                         }
                     }
