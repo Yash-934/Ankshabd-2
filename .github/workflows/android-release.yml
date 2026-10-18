@@ -1,0 +1,175 @@
+name: Android Release Build & GitHub Release
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release Tag (e.g. v1.0.0) - Leave empty for automatic tag on main'
+        required: false
+        default: 'v1.0.0'
+      create_github_release:
+        description: 'Publish APK & AAB to GitHub Releases'
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build Signed Release APK & AAB
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK Platform 36.1 & Build Tools
+        run: |
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "platform-tools" "platforms;android-36" "platforms;android-36.1" "build-tools;36.0.0"
+
+      - name: Set up Gradle 9.3.1
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.3.1'
+
+      - name: Prepare .env Configuration
+        env:
+          SECRET_GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          if [ ! -f .env ]; then
+            cp .env.example .env
+          fi
+          if [ -n "$SECRET_GEMINI_API_KEY" ]; then
+            echo "GEMINI_API_KEY=$SECRET_GEMINI_API_KEY" > .env
+          fi
+
+      - name: Prepare Debug & Release Keystores
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          SECRET_STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          SECRET_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          # 1. Restore debug.keystore from debug.keystore.base64 if present
+          if [ -f debug.keystore.base64 ] && [ ! -f debug.keystore ]; then
+            base64 -d debug.keystore.base64 > debug.keystore
+          elif [ ! -f debug.keystore ]; then
+            keytool -genkeypair -v \
+              -keystore debug.keystore \
+              -storepass android \
+              -alias androiddebugkey \
+              -keypass android \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
+
+          # 2. Configure Release Keystore (from GitHub Secret KEYSTORE_BASE64 or auto-generated upload key)
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > "${GITHUB_WORKSPACE}/my-upload-key.jks"
+            echo "KEYSTORE_PATH=${GITHUB_WORKSPACE}/my-upload-key.jks" >> $GITHUB_ENV
+            echo "STORE_PASSWORD=${SECRET_STORE_PASSWORD}" >> $GITHUB_ENV
+            echo "KEY_PASSWORD=${SECRET_KEY_PASSWORD}" >> $GITHUB_ENV
+          else
+            echo "No KEYSTORE_BASE64 secret found; generating release signing keystore..."
+            keytool -genkeypair -v \
+              -keystore "${GITHUB_WORKSPACE}/my-upload-key.jks" \
+              -storepass android \
+              -alias upload \
+              -keypass android \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -dname "CN=AnkShabd Release,OU=Mobile,O=AnkShabd,L=India,S=IN,C=IN"
+            echo "KEYSTORE_PATH=${GITHUB_WORKSPACE}/my-upload-key.jks" >> $GITHUB_ENV
+            echo "STORE_PASSWORD=android" >> $GITHUB_ENV
+            echo "KEY_PASSWORD=android" >> $GITHUB_ENV
+          fi
+
+      - name: Run Unit & Encoder Regression Tests
+        run: gradle :app:testDebugUnitTest
+
+      - name: Build Signed Release APK, Release Bundle (AAB) & Debug APK
+        run: gradle :app:assembleRelease :app:bundleRelease :app:assembleDebug
+
+      - name: Prepare Release Artifacts
+        run: |
+          mkdir -p release-artifacts
+          cp app/build/outputs/apk/release/*.apk release-artifacts/AnkShabd-release.apk
+          cp app/build/outputs/bundle/release/*.aab release-artifacts/AnkShabd-release.aab
+          cp app/build/outputs/apk/debug/*.apk release-artifacts/AnkShabd-debug.apk
+          ls -lh release-artifacts/
+
+      - name: Upload Release APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AnkShabd-Release-APK
+          path: release-artifacts/AnkShabd-release.apk
+          if-no-files-found: error
+
+      - name: Upload Release AAB (Play Store Bundle) Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AnkShabd-Release-AAB
+          path: release-artifacts/AnkShabd-release.aab
+          if-no-files-found: error
+
+      - name: Upload Debug APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AnkShabd-Debug-APK
+          path: release-artifacts/AnkShabd-debug.apk
+          if-no-files-found: warn
+
+      - name: Determine Release Tag
+        id: tag_info
+        if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.create_github_release == true)
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            TAG_NAME="${GITHUB_REF#refs/tags/}"
+          elif [ -n "${{ inputs.release_tag }}" ]; then
+            TAG_NAME="${{ inputs.release_tag }}"
+          else
+            TAG_NAME="v1.0.${GITHUB_RUN_NUMBER}"
+          fi
+          echo "tag_name=${TAG_NAME}" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release & Attach APK/AAB
+        if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.create_github_release == true)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag_info.outputs.tag_name }}
+          name: "AnkShabd (अंकशब्द) ${{ steps.tag_info.outputs.tag_name }}"
+          generate_release_notes: true
+          body: |
+            ## अंकशब्द (AnkShabd) — V2.3 Hindi Phonetic & Matra Number Memory System
+            ### 📦 Downloads
+            - **`AnkShabd-release.apk`**: Signed Android Release APK (Install directly on any Android device)
+            - **`AnkShabd-release.aab`**: Signed Android App Bundle for Google Play Console
+            - **`AnkShabd-debug.apk`**: Debug APK for testing
+          files: |
+            release-artifacts/AnkShabd-release.apk
+            release-artifacts/AnkShabd-release.aab
+            release-artifacts/AnkShabd-debug.apk

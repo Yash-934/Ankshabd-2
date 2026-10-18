@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Outer golden circular crest inside 66dp safe zone -->
+    <path
+        android:fillColor="#26F59E0B"
+        android:pathData="M54,24A30,30 0 1,1 54,84A30,30 0 1,1 54,24Z" />
+    <!-- Top Shirorekha bar (Devanagari headline bar) -->
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M30,36h48c1.66,0 3,1.34 3,3s-1.34,3 -3,3H30c-1.66,0 -3,-1.34 -3,-3s1.34,-3 3,-3z" />
+    <!-- Anusvara bindu (dot above Shirorekha representing Ank/Number 5) -->
+    <path
+        android:fillColor="#FFFBEB"
+        android:pathData="M62,28a4,4 0 1,1 0,8a4,4 0 1,1 0,-8z" />
+    <!-- Stylized bold Devanagari 'अ' / '3' curve + vertical stem -->
+    <path
+        android:fillColor="#FFFBEB"
+        android:pathData="M36,46c0,-2.2 1.8,-4 4,-4h8c5.52,0 10,4.48 10,10c0,3.4 -1.7,6.4 -4.3,8.2c3.2,1.9 5.3,5.4 5.3,9.3c0,6.08 -4.92,11 -11,11h-9c-2.2,0 -4,-1.8 -4,-4s1.8,-4 4,-4h9c1.66,0 3,-1.34 3,-3s-1.34,-3 -3,-3h-5c-2.2,0 -4,-1.8 -4,-4s1.8,-4 4,-4h4c1.66,0 3,-1.34 3,-3s-1.34,-3 -3,-3h-8c-2.2,0 -4,-1.8 -4,-4z" />
+    <!-- Connecting crossbar & right stem -->
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M54,55h12v-13h8v36c0,1.66 -1.34,3 -3,3h-2c-1.66,0 -3,-1.34 -3,-3V63H54v-8z" />
+</vector>

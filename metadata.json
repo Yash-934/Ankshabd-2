@@ -1,0 +1,6 @@
+{
+  "name": "Ank Shabd",
+  "description": "Hindi Phonetic Matra Number Memory System (V2.3) with Word Lab, Phonetic Analyzer, Memory Gym, Story Cinema, Notes, and Bilingual Dictionary.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
