@@ -36,7 +36,11 @@ fun SettingsScreen(
     var keyInput by remember { mutableStateOf(apiKey) }
     var selectedProvider by remember { mutableStateOf(providerId) }
     var endpointInput by remember { mutableStateOf(apiEndpoint) }
-    var modelInput by remember { mutableStateOf(apiModel) }
+    var modelInput by remember {
+        mutableStateOf(
+            if (apiModel.isBlank() || apiModel.contains("2.5") || apiModel.contains("1.5") || apiModel.contains("2.0")) "gemini-3.8-flash" else apiModel
+        )
+    }
     var isTestingAi by remember { mutableStateOf(false) }
     var aiTestResult by remember { mutableStateOf<Pair<Boolean, String>?>(null) }
     var showApiKey by remember { mutableStateOf(false) }
@@ -263,6 +267,7 @@ fun SettingsScreen(
                             value = modelInput,
                             onValueChange = { modelInput = it },
                             label = { Text("Gemini model") },
+                            placeholder = { Text("gemini-3.8-flash") },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true
                         )

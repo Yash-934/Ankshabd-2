@@ -55,13 +55,31 @@ interface AiProvider {
 
 class GeminiAiProvider(
     private var apiKey: String? = null,
-    private var model: String = "gemini-2.5-flash",
+    private var model: String = DEFAULT_MODEL,
     private var customEndpoint: String = "",
     private var useCustomProvider: Boolean = false
 ) : AiProvider {
 
+    companion object {
+        const val DEFAULT_MODEL = "gemini-3.8-flash"
+
+        /**
+         * Normalizes ASCII and Devanagari digits (०-९ -> 0-9), preserving leading zeros.
+         */
+        fun sanitizeNumberInput(raw: String): String {
+            val sb = StringBuilder()
+            for (ch in raw.trim()) {
+                when (ch) {
+                    in '0'..'9' -> sb.append(ch)
+                    in '०'..'९' -> sb.append(('0'.code + (ch.code - '०'.code)).toChar())
+                }
+            }
+            return sb.toString()
+        }
+    }
+
     override val providerName: String
-        get() = if (useCustomProvider) "Custom AI Provider" else "Google Gemini AI"
+        get() = if (useCustomProvider) "Custom AI Provider" else "Google Gemini AI (3.8-flash)"
     override val isConfigured: Boolean
         get() = !apiKey.isNullOrBlank()
 
@@ -72,7 +90,12 @@ class GeminiAiProvider(
     fun configure(provider: String, endpoint: String, selectedModel: String) {
         useCustomProvider = provider == "custom"
         customEndpoint = endpoint.trim()
-        model = selectedModel.trim().ifBlank { if (useCustomProvider) "gpt-4o-mini" else "gemini-2.5-flash" }
+        val candidate = selectedModel.trim()
+        model = when {
+            useCustomProvider -> candidate.ifBlank { "gpt-4o-mini" }
+            candidate.isBlank() || candidate.contains("2.5") || candidate.contains("1.5") || candidate.contains("2.0") -> DEFAULT_MODEL
+            else -> candidate
+        }
     }
 
     fun providerId(): String = if (useCustomProvider) "custom" else "gemini"
@@ -536,7 +559,8 @@ class GeminiAiProvider(
         val endpoint = if (useCustomProvider) {
             customEndpoint.ifBlank { throw IOException("Custom AI endpoint is not set.") }
         } else {
-            "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent"
+            val keyQuery = if (!apiKey.isNullOrBlank()) "?key=${apiKey.orEmpty()}" else ""
+            "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent$keyQuery"
         }
         if (!URL(endpoint).protocol.equals("https", ignoreCase = true)) {
             throw IOException("AI API endpoint must use HTTPS.")
@@ -549,7 +573,7 @@ class GeminiAiProvider(
             setRequestProperty("Content-Type", "application/json")
             if (useCustomProvider) {
                 setRequestProperty("Authorization", "Bearer ${apiKey.orEmpty()}")
-            } else {
+            } else if (!apiKey.isNullOrBlank()) {
                 setRequestProperty("x-goog-api-key", apiKey.orEmpty())
             }
         }
@@ -581,33 +605,39 @@ class GeminiAiProvider(
             val status = connection.responseCode
             val responseText = (if (status in 200..299) connection.inputStream else connection.errorStream)
                 ?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
-            if (status !in 200..299) throw IOException("AI provider returned HTTP $status: $responseText")
+
+            if (status !in 200..299) {
+                // If model is deprecated (e.g. 404 or "is no longer available"), auto-switch to DEFAULT_MODEL and retry once
+                if (!useCustomProvider && (status == 404 || responseText.contains("is no longer available") || responseText.contains("not found")) && model != DEFAULT_MODEL) {
+                    model = DEFAULT_MODEL
+                    return@withContext requestText(prompt, expectJson)
+                }
+                throw IOException("AI provider returned HTTP $status: $responseText")
+            }
+
             val response = JSONObject(responseText)
             val generated = if (useCustomProvider) {
                 response.optJSONArray("choices")?.optJSONObject(0)?.optJSONObject("message")?.optString("content")
             } else {
-                response.optJSONArray("candidates")?.optJSONObject(0)
-                    ?.optJSONObject("content")?.optJSONArray("parts")?.optJSONObject(0)?.optString("text")
+                val candidateObj = response.optJSONArray("candidates")?.optJSONObject(0)
+                val parts = candidateObj?.optJSONObject("content")?.optJSONArray("parts")
+                val textBuilder = StringBuilder()
+                if (parts != null) {
+                    for (i in 0 until parts.length()) {
+                        val part = parts.optJSONObject(i)
+                        val txt = part?.optString("text")
+                        if (!txt.isNullOrBlank()) {
+                            textBuilder.append(txt)
+                        }
+                    }
+                }
+                textBuilder.toString().ifBlank {
+                    candidateObj?.optJSONObject("content")?.optJSONArray("parts")?.optJSONObject(0)?.optString("text")
+                }
             }
             generated?.takeIf(String::isNotBlank) ?: throw IOException("AI provider returned no text.")
         } finally {
             connection.disconnect()
-        }
-    }
-
-    companion object {
-        /**
-         * Normalizes ASCII and Devanagari digits (०-९ -> 0-9), preserving leading zeros.
-         */
-        fun sanitizeNumberInput(raw: String): String {
-            val sb = StringBuilder()
-            for (ch in raw.trim()) {
-                when (ch) {
-                    in '0'..'9' -> sb.append(ch)
-                    in '०'..'९' -> sb.append(('0'.code + (ch.code - '०'.code)).toChar())
-                }
-            }
-            return sb.toString()
         }
     }
 }

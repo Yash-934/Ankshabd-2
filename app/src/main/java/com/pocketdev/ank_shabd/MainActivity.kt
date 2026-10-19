@@ -129,14 +129,24 @@ fun AnkShabdApp(
         val buildConfigKey = BuildConfig.GEMINI_API_KEY.takeIf {
             it.isNotBlank() && it != "MY_GEMINI_API_KEY"
         }
+        val savedModel = aiPreferences.getString("model", null)
+        val activeModel = if (savedModel.isNullOrBlank() || savedModel.contains("2.5") || savedModel.contains("1.5") || savedModel.contains("2.0")) {
+            GeminiAiProvider.DEFAULT_MODEL.also {
+                aiPreferences.edit().putString("model", it).apply()
+            }
+        } else {
+            savedModel
+        }
+        val savedProvider = aiPreferences.getString("provider", "gemini") ?: "gemini"
+        val savedEndpoint = aiPreferences.getString("endpoint", "") ?: ""
         GeminiAiProvider(
             apiKey = aiPreferences.getString("api_key", null)?.takeIf { it.isNotBlank() } ?: buildConfigKey,
-            model = aiPreferences.getString("model", "gemini-2.5-flash") ?: "gemini-2.5-flash"
+            model = activeModel
         ).apply {
             configure(
-                aiPreferences.getString("provider", "gemini") ?: "gemini",
-                aiPreferences.getString("endpoint", "") ?: "",
-                aiPreferences.getString("model", "gemini-2.5-flash") ?: "gemini-2.5-flash"
+                savedProvider,
+                savedEndpoint,
+                activeModel
             )
         }
     }
